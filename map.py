@@ -53,7 +53,7 @@ try:
     for i in range(readModelCnt):
         modelNameLen = line[index]
         index += 1
-        modelName = line[index:index+modelNameLen]
+        modelName = line[index:index+modelNameLen].decode("shift-jis")
         index += modelNameLen
         print("index:{0} -> {1}".format(i, modelName), end=", ")
         for j in range(2):
@@ -77,7 +77,7 @@ try:
     #Music
     readMusicNameLen = line[index]
     index += 1
-    print("MusicName:{0}".format(line[index:index+readMusicNameLen]))
+    print("MusicName:{0}".format(line[index:index+readMusicNameLen].decode("shift-jis")))
     index += readMusicNameLen
     readMusicFileLen = line[index]
     index += 1
@@ -91,7 +91,7 @@ try:
     #RailName
     readRailNameLen = line[index]
     index += 1
-    print("RailName:{0}".format(line[index:index+readRailNameLen]))
+    print("RailName:{0}".format(line[index:index+readRailNameLen].decode("shift-jis")))
     index += readRailNameLen
 
     #???
@@ -117,6 +117,9 @@ try:
     #Rail
     readRailCnt = readBinary(line[index:index+2], "short")
     index += 2
+    print("RailCnt:{0}".format(readRailCnt))
+    if not printRailFlag:
+        print("Rail情報省略")
     for i in range(readRailCnt):
         if printRailFlag:
             print("index{0}".format(i))
@@ -220,7 +223,8 @@ try:
 
         if printRailFlag:
             print()
-
+    print()
+    
     #StationName
     readStationNameCnt = line[index]
     index += 1
@@ -242,9 +246,78 @@ try:
         for j in range(6):
             temp22 = readBinary(line[index:index+4], "float")
             index += 4
-            print("{0}".format(temp20), end=", ")
+            print("{0}".format(temp22), end=", ")
         print("]")
-            
+    print()
+    
+    #???
+    cnt = line[index]
+    index += 1
+    for i in range(cnt):
+        print("[", end="")
+        for j in range(3):
+            temp23 = readBinary(line[index:index+4], "float")
+            index += 4
+            print("{0}".format(temp23), end=", ")
+        print("]", end=", ")
+        index += 1
+    print()
+
+    #CPU Data
+    print()
+    readCpuDataCnt = line[index]
+    index += 1
+    for i in range(readCpuDataCnt):
+        print("[", end="")
+        railNo = readBinary(line[index:index+2], "short")
+        index += 2
+        print("{0}".format(railNo), end=", ")
+        for j in range(6):
+            temp25 = readBinary(line[index:index+4], "int")
+            index += 4
+            print("{0}".format(temp25), end=", ")
+        print()
+
+        cpuNo = line[index]
+        index += 1
+        cpuType = line[index]
+        index += 1
+        minLen = readBinary(line[index:index+4], "float")
+        index += 4
+        maxLen = readBinary(line[index:index+4], "float")
+        index += 4
+        maxSpeed = readBinary(line[index:index+4], "float")
+        index += 4
+        minSpeed = readBinary(line[index:index+4], "float")
+        index += 4
+        default = readBinary(line[index:index+4], "float")
+        index += 4
+        print("{0}, {1}, {2}, {3}, {4}, {5}, {6}".format(cpuNo, cpuType, minLen, maxLen, maxSpeed, minSpeed, default), end=", ")
+        for j in range(3):
+            temp26 = readBinary(line[index:index+4], "float")
+            index += 4
+            print("{0}".format(temp26), end=", ")
+        print("]")
+    print()
+
+    #COMIC SCRIPT
+    readComicScriptCnt = line[index]
+    index += 1
+    for i in range(readComicScriptCnt):
+        comicNum = readBinary(line[index:index+2], "short")
+        index += 2
+        comicType = line[index]
+        index += 1
+        eventRailNo = readBinary(line[index:index+2], "short")
+        index += 2
+        print("{0}, {1}, {2}".format(comicNum, comicType, eventRailNo), end=", ")
+        for j in range(9):
+            temp27 = readBinary(line[index:index+4], "float")
+            index += 4
+            print("{0}".format(temp27), end=", ")
+        print()
+    print()
+        
 
 except Exception as e:
     print(e)
