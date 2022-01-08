@@ -61,6 +61,7 @@ try:
         f = open(file, "rb")
         line = f.read()
         f.close()
+        filename = os.path.splitext(os.path.basename(file))[0]
     except FileNotFoundError:
         errorMsg = "指定されたファイルが見つかりません。終了します。"
         print(errorMsg)
@@ -146,7 +147,8 @@ try:
     print()
     
     #Rail
-    w = open("rail.txt", "w")
+    writeTxt = filename + ".txt"
+    w = open(writeTxt, "w")
     readRailCnt = readBinary(line[index:index+2], "short")
     w.write("RailCnt:{0}\n".format(readRailCnt))
     index += 2
@@ -184,28 +186,33 @@ try:
             for j in range(3):
                 w.write("\t")
 
-        for j in range(3):
+        for j in range(2):
             writeText(w, line[index], "char")
             w.write("\t")
             index += 1
 
         for j in range(2):
+            writeText(w, line[index], "char")
+            w.write("\t")
+            index += 1
             for k in range(3):
                 writeText(w, line[index:index+4], "float")
                 w.write("\t")
                 index += 4
-            writeText(w, line[index], "char")
-            w.write("\t")
-            index += 1
 
+        writeText(w, line[index], "char")
+        w.write("\t")
+        index += 1
+
+        #0x0000803F
         writeText(w, line[index:index+4], "float")
         w.write("\t")
         index += 4
 
-        for j in range(2):
-            writeText(w, line[index:index+2], "short")
-            w.write("\t")
-            index += 2
+        #Flg
+        writeText(w, line[index:index+4], "int")
+        w.write("\t")
+        index += 4
 
         r = line[index]
         writeText(w, line[index], "char")
