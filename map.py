@@ -142,9 +142,18 @@ try:
     index += 1
     print("RailName:{0}".format(line[index:index+readRailNameLen].decode("shift-jis")))
     index += readRailNameLen
-
+    print()
+    
     #???
-    index += 0x20
+    index += 0x3
+    cnt = line[index]
+    index += 1
+    print("[", end="")
+    for i in range(cnt):
+        temp = readBinary(line[index:index+4], "float")
+        print(temp, end=", ")
+        index += 4
+    print("]", end="")
     print()
 
     #ToRailCnt
