@@ -19,35 +19,50 @@ def readBinary(line, mode):
         return None
 
 def writeText(w, line, mode):
-    if mode == "short":
+    if mode == "shortHex":
         for i in range(2):
             text = str(hex(line[i]))[2:]
             if len(text) == 1:
                 text = "0" + text
             w.write(text)
-    elif mode == "ushort":
+    elif mode == "ushortHex":
         for i in range(2):
             text = str(hex(line[i]))[2:]
             if len(text) == 1:
                 text = "0" + text
             w.write(text)
-    elif mode == "int":
+    elif mode == "intHex":
         for i in range(4):
             text = str(hex(line[i]))[2:]
             if len(text) == 1:
                 text = "0" + text
             w.write(text)
-    elif mode == "float":
+    elif mode == "floatHex":
         for i in range(4):
             text = str(hex(line[i]))[2:]
             if len(text) == 1:
                 text = "0" + text
             w.write(text)
-    elif mode == "char":
+    elif mode == "charHex":
         text = str(hex(line))[2:]
         if len(text) == 1:
             text = "0" + text
         w.write(text)
+        
+    elif mode == "short":
+        s = struct.unpack("<h", line)[0]
+        w.write(str(s))
+    elif mode == "ushort":
+        s = struct.unpack("<H", line)[0]
+        w.write(str(s))
+    elif mode == "int":
+        i = struct.unpack("<i", line)[0]
+        w.write(str(i))
+    elif mode == "float":
+        f = struct.unpack("<f", line)[0]
+        w.write(str(f))
+    elif mode == "char":
+        w.write(str(line))
 
 print("DEND LS MAP SCRIPT ver1.0.0...")
 file = input("railのbinファイル名を入力してください: ")
@@ -55,6 +70,8 @@ file = input("railのbinファイル名を入力してください: ")
 readFlag = False
 printRailFlag = False
 flag = False
+
+railDict = []
 
 try:
     try:
@@ -147,7 +164,7 @@ try:
     print()
     
     #Rail
-    writeTxt = filename + ".txt"
+    writeTxt = filename + ".csv"
     w = open(writeTxt, "w")
     readRailCnt = readBinary(line[index:index+2], "short")
     w.write("RailCnt:{0}\n".format(readRailCnt))
@@ -155,99 +172,106 @@ try:
     print("RailCnt:{0}".format(readRailCnt))
     for i in range(readRailCnt):
         if flag:
-            writeText(w, line[index:index+4], "short")
-            w.write("\t")
+            writeText(w, line[index:index+2], "short")
+            w.write(",")
             index += 2
         for j in range(2):
             writeText(w, line[index:index+4], "float")
-            w.write("\t")
+            w.write(",")
             index += 4
             writeText(w, line[index:index+4], "float")
-            w.write("\t")
+            w.write(",")
             index += 4
             writeText(w, line[index:index+4], "float")
-            w.write("\t")
+            w.write(",")
             index += 4
 
         writeText(w, line[index], "char")
-        w.write("\t")
+        w.write(",")
         index += 1
         temp5 = readBinary(line[index:index+2], "short")
         writeText(w, line[index:index+2], "short")
-        w.write("\t")
+        w.write(",")
         index += 2
 
         if temp5 == -1:
             for j in range(3):
                 writeText(w, line[index:index+4], "float")
-                w.write("\t")
+                w.write(",")
                 index += 4
         else:
             for j in range(3):
-                w.write("\t")
+                w.write(",")
 
-        for j in range(2):
+        for j in range(3):
             writeText(w, line[index], "char")
-            w.write("\t")
+            w.write(",")
             index += 1
 
         for j in range(2):
-            writeText(w, line[index], "char")
-            w.write("\t")
-            index += 1
             for k in range(3):
                 writeText(w, line[index:index+4], "float")
-                w.write("\t")
+                w.write(",")
                 index += 4
-
-        writeText(w, line[index], "char")
-        w.write("\t")
-        index += 1
+            writeText(w, line[index], "char")
+            w.write(",")
+            index += 1
 
         #0x0000803F
-        writeText(w, line[index:index+4], "float")
-        w.write("\t")
+        writeText(w, line[index:index+4], "floatHex")
+        w.write(",")
         index += 4
 
         #Flg
-        writeText(w, line[index:index+4], "int")
-        w.write("\t")
+        writeText(w, line[index:index+4], "intHex")
+        w.write(",")
         index += 4
 
         r = line[index]
         writeText(w, line[index], "char")
-        w.write("\t")
+        w.write(",")
         index += 1
+        railInfo = {"prev":[], "next":[]}
         for j in range(r):
+            nextRail = []
+            prevRail = []
             writeText(w, line[index:index+2], "short")
-            w.write("\t")
+            w.write(",")
+            nextRail.append(readBinary(line[index:index+2], "short"))
             index += 2
             writeText(w, line[index:index+2], "short")
-            w.write("\t")
+            w.write(",")
+            nextRail.append(readBinary(line[index:index+2], "short"))
             index += 2
+            railInfo["next"].append(nextRail)
             
             writeText(w, line[index:index+2], "short")
-            w.write("\t")
+            w.write(",")
+            prevRail.append(readBinary(line[index:index+2], "short"))
             index += 2
             writeText(w, line[index:index+2], "short")
-            w.write("\t")
+            w.write(",")
+            prevRail.append(readBinary(line[index:index+2], "short"))
             index += 2
+            railInfo["prev"].append(prevRail)
+
+        railDict.append(railInfo)
 
         temp16 = line[index]
         writeText(w, line[index], "char")
-        w.write("\t")
+        w.write(",")
         index += 1
         if temp16 != 0:
             for j in range(temp16):
                 writeText(w, line[index:index+2], "short")
-                w.write("\t")
+                w.write(",")
                 index += 2
                 writeText(w, line[index:index+2], "short")
-                w.write("\t")
+                w.write(",")
                 index += 2
                 
                 writeText(w, line[index], "char")
-                w.write("\t")
+                w.write(",")
                 index += 1
 
         w.write("\n")
