@@ -146,7 +146,7 @@ try:
     #???
     index += 0x20
     print()
-    
+
     #ToRailCnt
     readToRailCnt = line[index]
     index += 1
@@ -162,7 +162,7 @@ try:
         print("{0}P -> [{1},{2},{3},{4}]".format(i+1,railNo, railPos, a, b))
         index += 1
     print()
-    
+
     #Rail
     writeTxt = filename + ".csv"
     w = open(writeTxt, "w")
@@ -171,9 +171,12 @@ try:
     index += 2
     print("RailCnt:{0}".format(readRailCnt))
     for i in range(readRailCnt):
+        #print("Rail-index:{0}({1})".format(i, hex(index)))
         if flag:
             writeText(w, line[index:index+2], "short")
             w.write(",")
+            if readBinary(line[index:index+2], "short") != -1:
+                index += 24
             index += 2
         for j in range(2):
             writeText(w, line[index:index+4], "float")
@@ -276,7 +279,7 @@ try:
 
         w.write("\n")
     w.close()
-    
+
     #StationName
     readStationNameCnt = line[index]
     index += 1
@@ -301,17 +304,31 @@ try:
             print("{0}".format(temp22), end=", ")
         print("]")
     print()
-    
+
     #???
     cnt = line[index]
     index += 1
+    flg = 0
     for i in range(cnt):
         print("[", end="")
+        for j in range(flg):
+            print("\n\t[", end="")
+            for k in range(4):
+                temp23 = readBinary(line[index:index+4], "float")
+                index += 4
+                print("{0}".format(temp23), end=", ")
+            print(line[index], end=", ")
+            index += 1
+            print("]", end="")
+        if flg != 0:
+            print("\n]\n[", end="")
         for j in range(3):
             temp23 = readBinary(line[index:index+4], "float")
             index += 4
             print("{0}".format(temp23), end=", ")
-        print("]", end=", ")
+        flg = line[index]
+        print(flg, end=", ")
+        print("]")
         index += 1
     print()
 
@@ -370,7 +387,6 @@ try:
         print()
     print()
         
-
 except Exception as e:
     print(e)
     sys.exit()
