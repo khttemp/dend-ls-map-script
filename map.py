@@ -182,11 +182,18 @@ try:
     for i in range(readRailCnt):
         #print("Rail-index:{0}({1})".format(i, hex(index)))
         if flag:
+            temp = readBinary(line[index:index+2], "short")
             writeText(w, line[index:index+2], "short")
             w.write(",")
-            if readBinary(line[index:index+2], "short") != -1:
-                index += 24
             index += 2
+            if temp != -1:
+                for j in range(6):
+                    writeText(w, line[index:index+4], "float")
+                    w.write(",")
+                    index += 4
+            else:
+                for j in range(6):
+                    w.write(",")
         for j in range(2):
             writeText(w, line[index:index+4], "float")
             w.write(",")
@@ -275,12 +282,18 @@ try:
         index += 1
         if temp16 != 0:
             for j in range(temp16):
-                writeText(w, line[index:index+2], "short")
+                writeText(w, line[index], "char")
                 w.write(",")
-                index += 2
-                writeText(w, line[index:index+2], "short")
+                index += 1
+                writeText(w, line[index], "char")
                 w.write(",")
-                index += 2
+                index += 1
+                writeText(w, line[index], "char")
+                w.write(",")
+                index += 1
+                writeText(w, line[index], "char")
+                w.write(",")
+                index += 1
                 
                 writeText(w, line[index], "char")
                 w.write(",")
@@ -314,7 +327,7 @@ try:
         print("]")
     print()
 
-    #???
+    #Camera
     cnt = line[index]
     index += 1
     flg = 0
