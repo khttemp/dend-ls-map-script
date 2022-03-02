@@ -64,7 +64,7 @@ def writeText(w, line, mode):
     elif mode == "char":
         w.write(str(line))
 
-print("DEND LS MAP SCRIPT ver1.0.0...")
+print("DEND LS MAP SCRIPT ver1.0.2...")
 file = input("railのbinファイル名を入力してください: ")
 
 readFlag = False
