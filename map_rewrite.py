@@ -346,7 +346,7 @@ try:
             newByteFile += num
             for i in range(railInfoCnt):
                 for j in range(4):
-                    rail = int(arr[railInfoIdx + 4*i + j])
+                    rail = int(arr[railInfoIdx + 4*i + j + 1])
                     num = struct.pack("<h", rail)
                     newByteFile += num
 
@@ -356,7 +356,7 @@ try:
             newByteFile += num
             for i in range(effectCnt):
                 for j in range(5):
-                    eff = int(arr[effectIdx + 5*i + j])
+                    eff = int(arr[effectIdx + 5*i + j + 1])
                     num = struct.pack("<c", bytes([eff]))
                     newByteFile += num
 
